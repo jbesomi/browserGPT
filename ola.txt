@@ -1,0 +1,31 @@
+<link id=0>Home</link>
+<link id=1>Backstage</link>
+<link id=2>About</link>
+<text id=3>Home</text>
+<text id=4>Hi, welcome to my personal website.</text>
+<text id=5>I am an entrepreneur, software engineer and founder of</text>
+<link id=6>Grandmaster AI</link>
+<text id=7>.</text>
+<text id=8>Our mission is to make machine learning accessible to as many developers as possible.</text>
+<text id=9>In the spare time, i like to build AI-powered tools like</text>
+<link id=10>notionGPT</link>
+<text id=11>(more to come soon).</text>
+<text id=12>My blog is called</text>
+<link id=13>/backstage</link>
+<text id=14>. There, I write about my experience trying to launch a tech startup from scratch.</text>
+<text id=15>You can read more about me at</text>
+<link id=16>/about</link>
+<text id=17>.</text>
+<link id=18 alt="linkedin"/>
+<link id=19>@jbesomi</link>
+<text id=20>Talk about AI, entrepreneurship & tech</text>
+<link id=21 alt="instagram"/>
+<link id=22>@jbesomi</link>
+<text id=23>Some bits of my life</text>
+<link id=24>LinkedIn</link>
+<text id=25>•</text>
+<link id=26>Instagram</link>
+<text id=27>•</text>
+<link id=28>Contact</link>
+<text id=29>© Copyright 2022, Jonathan Besomi</text>
+<text id=30>
