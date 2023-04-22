@@ -1,22 +1,141 @@
-const { getSimpleContent } = require("../utils/getSimpleContent");
+const { JSDOM } = require("jsdom");
+const fetch = require("node-fetch");
 
-test("getSimpleContent returns a simplified representation of the HTML content", () => {
-  const html = `
-    <div>
-      <textarea>Sample text</textarea>
-      <button>Submit</button>
-      <a href="/one">Go to One</a>
-      <a href="/two">Go to Two</a>
-    </div>
-  `;
+const cheerio = require("cheerio");
 
-  const expectedResult = `
-    [textarea]Sample text[/textarea]
-    Submit
-    Go to One [/one]Go to Two [/two]
-  `;
+const parseHTMLtoJSON = (html) => {
+  const $ = cheerio.load(html);
 
-  // expect(getSimpleContent(html)).toEqual(expectedResult.trim());
+  const processElement = (element) => {
+    const obj = {
+      type: element.name,
+      children: [],
+    };
 
-  console.log(getSimpleContent(html));
-});
+    // Process text content
+    const text = $(element).text().trim();
+    if (text) {
+      obj.content = text;
+    }
+
+    // Process attributes
+    const attributes = $(element).attr();
+    const allowedAttributes = ["href", "src", "id"];
+    const filteredAttributes = Object.entries(attributes)
+      .filter(([key]) => allowedAttributes.includes(key))
+      .reduce((obj, [key, value]) => {
+        obj[key] = value;
+        return obj;
+      }, {});
+    if (Object.keys(filteredAttributes).length > 0) {
+      obj.attributes = filteredAttributes;
+    }
+
+    // Process child elements
+    $(element)
+      .children()
+      .each((_, child) => {
+        obj.children.push(processElement(child));
+      });
+
+    return obj;
+  };
+
+  return processElement($("body").get(0));
+};
+
+// Example usage
+
+async function getHtmlFromUrl(url) {
+  try {
+    const response = await fetch(url);
+    if (response.ok) {
+      const html = await response.text();
+      return html;
+    } else {
+      throw new Error(`HTTP Error: ${response.status}`);
+    }
+  } catch (error) {
+    console.error(`Error fetching URL: ${error.message}`);
+    return null;
+  }
+}
+
+const htmlparser2 = require("htmlparser2");
+
+function filterDOM(htmlString) {
+  const $ = cheerio.load(htmlString);
+
+  const handler = new htmlparser2.DomHandler();
+  const parser = new htmlparser2.Parser(handler, { decodeEntities: true });
+
+  parser.write(htmlString);
+  parser.end();
+  const rootNode = handler.dom;
+
+  function filterNodes(node) {
+    if (!node.children) {
+      return;
+    }
+
+    node.children = node.children.filter((child) => {
+      if (child.type === "tag") {
+        if (
+          child.name === "a" ||
+          child.name === "input" ||
+          child.name === "textarea"
+        ) {
+          return true;
+        } else {
+          filterNodes(child);
+          return child.children && child.children.length > 0;
+        }
+      } else if (child.type === "text" && child.data.trim() !== "") {
+        return true;
+      }
+
+      return false;
+    });
+  }
+
+  filterNodes(rootNode[0]);
+  return rootNode;
+}
+
+// Example usage:
+const inputHtml = `
+  <html>
+    <head>
+      <title>Test Page</title>
+    </head>
+    <body>
+      <h1>Hello, World!</h1>
+      <p>
+        Here is some text with a <a href="https://example.com">link</a>.
+      </p>
+      <input type="text" placeholder="Type here">
+      <textarea>Write something...</textarea>
+    </body>
+  </html>
+`;
+
+const minimalDOM = filterDOM(inputHtml);
+console.log(JSON.stringify(minimalDOM, null, 2));
+
+const html2 = `
+  <div>
+    <h1>Page Title</h1>
+    <p>This is a paragraph.</p>
+    <a href="https://www.example.com">Click here</a>
+  </div>
+`;
+
+(async () => {
+  const url = "http://localhost:3000/";
+  const html = await getHtmlFromUrl(url);
+
+  if (html) {
+    const jsonRepresentation = parseHTMLtoJSON(html);
+    console.log(JSON.stringify(jsonRepresentation, null, 2));
+  }
+})();

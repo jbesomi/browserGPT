@@ -21,3 +21,9 @@ This is a community-based and open-source project.
 This is a community-based, open-source projects. We welcome PR.
 
 Join our Discord at [link](https://discord.gg/X97NWs2B5F)
+
+
+### Dev
+
+- Clean html (like https://www.htmlwasher.com)
+- 
